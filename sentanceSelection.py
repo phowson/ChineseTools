@@ -15,6 +15,7 @@ sys.setdefaultencoding('utf8')
 
 
 numberCharactersVocab = 500;
+sentPages = 3;
 skip = 0;
 
 
@@ -73,7 +74,7 @@ for c in characters:
 		break;
 
 	examplesList = list();
-	getExamplesWithList(c, examplesList);
+	getExamplesWithList(c, examplesList,sentPages);
 
 	for pair in examplesList:
 		mandarin = pair[0];
@@ -86,19 +87,16 @@ for c in characters:
 				break;
 
 		if (ok and mandarin not in alreadySeen):
-
+			alreadySeen.add(mandarin);
 			if (skip==0):
-
-
-				alreadySeen.add(mandarin);
 				tts = gTTS(text=mandarin, lang='zh-cn')
 				filename = 'sentaudio' + str(ax) +'.mp3';
 				if (os.path.isfile(sDir+filename)):
 					os.remove(sDir+filename);
 
 				tts.save(sDir+filename)
-
-				f.write(mandarin +'\t' + pinyin.get(mandarin)+ '<br/><p>' + definition +'</p>\tNoTag\t\t\t'+filename+'\t'+filename +'\n');
+				tag = 'Section' + str(1+ax/100);
+				f.write(mandarin +'\t' + pinyin.get(mandarin)+ '<br/><p>' + definition +'</p>\t'+tag+'\t\t\t'+filename+'\t\n');
 				f.flush();
 
 				#mixer.music.load(filename);

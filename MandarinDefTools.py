@@ -20,40 +20,37 @@ def reduceLen(s):
 
 
 
-def getExamplesWithList(char,lst):
-	response = requests.get('http://tatoeba.org/eng/sentences/search?query='+char+'&from=cmn&to=eng&orphans=no&unapproved=no&native=yes&user=&tags=&list=&has_audio=&trans_filter=limit&trans_to=eng&trans_link=direct&trans_user=&trans_orphan=no&trans_unapproved=no&trans_has_audio=&sort=words');	
+def getExamplesWithList(char,lst,maxPages):
+	for page in range(1,maxPages):
+		response = requests.get('http://tatoeba.org/eng/sentences/search/page:'+str(page) +'?query='+char+'&from=cmn&to=eng&orphans=no&unapproved=no&native=yes&user=&tags=&list=&has_audio=&trans_filter=limit&trans_to=eng&trans_link=direct&trans_user=&trans_orphan=no&trans_unapproved=no&trans_has_audio=&sort=words');	
 
-	soup = BeautifulSoup(response.content, 'html.parser',)	
+		soup = BeautifulSoup(response.content, 'html.parser',)	
 
-	divs = soup.findAll('div',{'class','sentence-and-translations'});
+		divs = soup.findAll('div',{'class','sentence-and-translations'});
 
-	output='';
-	for div in divs:
-		sentences = div.findAll('div',{'class','sentence'});
-		dt =  div.findAll('div',{'class','direct translations'});
-		s=sentences[0];
-		translationText = None;
+		for div in divs:
+			sentences = div.findAll('div',{'class','sentence'});
+			dt =  div.findAll('div',{'class','direct translations'});
+			s=sentences[0];
+			translationText = None;
 
-		mandarinText= simplify(s.find_next('div',{'class','text'}).get_text(" ",strip="true"));
-		for t in dt:
-			trans = t.findAll('div',{'class','translation '});
-			for x in trans:
-				if x.find_next('div',{'class','lang'}).find_next('img').get('title','')=='English':
-					translationText = x.find_next('div',{'class','text'}).get_text(" ",strip="true");
-					break;
+			mandarinText= simplify(s.find_next('div',{'class','text'}).get_text(" ",strip="true")).strip();
+			for t in dt:
+				trans = t.findAll('div',{'class','translation '});
+				for x in trans:
+					if x.find_next('div',{'class','lang'}).find_next('img').get('title','')=='English':
+						translationText = x.find_next('div',{'class','text'}).get_text(" ",strip="true");
+						break;
 
-		if (translationText!=None) :
-			lst.append((mandarinText, translationText));
-			output+=mandarinText + ' : ' + translationText + '<br/>';
-
-	return output;
+			if (translationText!=None) :
+				lst.append((mandarinText, translationText));
 
 
 
 def getExamples(char):
 	txt='';
 	lst = list();
-	getExamplesWithList(char,lst);
+	getExamplesWithList(char,lst,2);
 	for t in lst:
 		txt+=t[0] +' : ' +t[1] +'<br/>';
 
