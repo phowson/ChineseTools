@@ -8,16 +8,21 @@ from bs4 import BeautifulSoup
 from HTMLParser import HTMLParser
 h = HTMLParser();
 
+
+
 def clean(s):
-	return re.sub('\\r','',re.sub('\\(A.*?\\)','',re.sub('\\(F.*?\\)','',re.sub('\\n','',re.sub('\t',' ', re.sub('&LT;','<',re.sub('&GT;','>',s))))))).strip();
+	return re.sub('>','',re.sub('<','',re.sub('\\r','',re.sub('\\(A.*?\\)','',re.sub('\\(F.*?\\)','',re.sub('\\n','',re.sub('\t',' ', re.sub('&LT;','<',re.sub('&GT;','>',s))))))))).strip();
 
 def reduceLen(s):
 	return s[:200];
 
 
-def getExamples(char):
 
-	response = requests.get('http://tatoeba.org/eng/sentences/search?query='+char+'&from=cmn&to=und&orphans=no&unapproved=no&user=&tags=&list=&has_audio=&trans_filter=limit&trans_to=eng&trans_link=direct&trans_user=&trans_orphan=&trans_unapproved=&trans_has_audio=&sort=words');	
+
+
+def getExamplesWithList(char,lst):
+	response = requests.get('http://tatoeba.org/eng/sentences/search?query='+char+'&from=cmn&to=eng&orphans=no&unapproved=no&native=yes&user=&tags=&list=&has_audio=&trans_filter=limit&trans_to=eng&trans_link=direct&trans_user=&trans_orphan=no&trans_unapproved=no&trans_has_audio=&sort=words');	
+
 	soup = BeautifulSoup(response.content, 'html.parser',)	
 
 	divs = soup.findAll('div',{'class','sentence-and-translations'});
@@ -29,7 +34,7 @@ def getExamples(char):
 		s=sentences[0];
 		translationText = None;
 
-		madarinText= s.find_next('div',{'class','text'}).get_text(" ",strip="true");
+		mandarinText= simplify(s.find_next('div',{'class','text'}).get_text(" ",strip="true"));
 		for t in dt:
 			trans = t.findAll('div',{'class','translation '});
 			for x in trans:
@@ -38,13 +43,21 @@ def getExamples(char):
 					break;
 
 		if (translationText!=None) :
-			output+=simplify(madarinText) + ' : ' + translationText + '<br/>';
+			lst.append((mandarinText, translationText));
+			output+=mandarinText + ' : ' + translationText + '<br/>';
 
 	return output;
 
 
 
+def getExamples(char):
+	txt='';
+	lst = list();
+	getExamplesWithList(char,lst);
+	for t in lst:
+		txt+=t[0] +' : ' +t[1] +'<br/>';
 
+	return txt;
 
 
 
@@ -67,7 +80,10 @@ def getDefinition(char):
 
 		utf1 = col1.get_text();
 		if (char in utf1):
-			x = h.unescape(row.get_text(" ",strip=True));
+
+			dv = row.find_next("div",{'class','defs'});
+
+			x = h.unescape(dv.get_text(" ",strip=True));
 			if ("surname" not in x and "Surname" not in x and "variant of" not in x and "Variant of" not in x):				
 				if (first==None):
 					first = x;

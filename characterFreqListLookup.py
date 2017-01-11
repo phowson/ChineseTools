@@ -40,7 +40,7 @@ while row!=None:
 
 	char = clean(h.unescape(col2.get_text(" ",strip=True))).encode('utf-8');
 
-	txt = '<font size="+2">'+char+'</font>';
+	txt = '<font size="2">'+char+'</font>';
 	txt+= '\t';
 	txt+= reduceLen(clean(h.unescape(col3.get_text(" ",strip=True)))).encode('utf-8');
 	txt+= '<br/>';
