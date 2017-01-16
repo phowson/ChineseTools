@@ -14,54 +14,14 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
-numberCharactersVocab = 500;
+numberCharactersVocab = 350;
 sentPages = 3;
 skip = 0;
 
-
-response = requests.get('http://www.zein.se/patrick/3000char.html');
-html_doc=response.content;
-html_doc=re.sub('<FONT SIZE=\\+2>','',html_doc);
-html_doc=re.sub('<FONT>','',html_doc);
-html_doc=re.sub('</FONT>','',html_doc);
-
-
-soup = BeautifulSoup(html_doc, 'html.parser',)
-
-first_table = soup.table;
-second_table = first_table.find_next("table");
-
 sDir = 'sentDeck' + str(numberCharactersVocab) +'/';
 f = open(sDir +'deck.tsv', 'w');
-
-
-row = second_table.find_next("tr");
-row = row.find_next("tr");
-
-counter = 0;
 characters = list();
-permissableInSentences = set();
-
-while row!=None:
-
-	col1=row.find_next("td");
-	col2=col1.find_next("td");
-	col3=col2.find_next("td");
-
-	char = simplify(clean(h.unescape(col2.get_text(" ",strip=True))));
-	characters.append(char);
-
-	row = row.find_next("tr");
-
-	if (len(characters)<numberCharactersVocab):
-		permissableInSentences.add(char);
-	
-permissableInSentences.add(u'！');
-permissableInSentences.add(u'。');
-permissableInSentences.add(u'？');
-permissableInSentences.add(u'，');
-permissableInSentences.add(u' ');
-permissableInSentences.add(u'您');
+permissableInSentences = getMostCommonCharsWithList(numberCharactersVocab, characters);
 
 
 print "Retrieved " + str(len(characters)) +" characters";

@@ -1,12 +1,18 @@
-
+# coding=utf-8
 from bs4 import BeautifulSoup
 import requests
 import sys;
 from sets import Set
 from MandarinDefTools import *;
+import pinyin;
 
 reload(sys)  
 sys.setdefaultencoding('utf8')
+
+
+numberCharactersVocab=500;
+
+characters = getMostCommonChars(numberCharactersVocab);
 
 
 
@@ -40,7 +46,7 @@ while row!=None:
 	if (col2.get_text("",strip=True)=="Contributions"):
 		break;
 
-	char = clean(h.unescape(col2.get_text(" ",strip=True))).encode('utf-8');
+	char = clean(h.unescape(col2.get_text(" ",strip=True)));
 	desc = reduceLen(re.sub('^.*\\(','',clean(h.unescape(row.get_text(" ",strip=True)))));
 	row = row.find_next("li");
 
@@ -50,13 +56,27 @@ while row!=None:
 	
 	seen.add(char);
 
+
+	ok = True;
+	for c in char:
+		if (c not in characters):
+			ok = False;
+			break;
+
+	if not ok:
+		print "rejected";
+		continue;
+	
+
 	line = char;
 	line += '\t';
+	line += pinyin.get(char);
+	line += '<br/>';
 	line += re.sub(',',', ',desc).encode('utf-8');
 	line += '<br/>';
 	line += reduceLen(getDefinition(char));
 	line+= '<br/>';
-	line += getExamples(char);
+	line += getExamples(char.encode('utf-8'));
 	line+= '<br/>';
 	line+= 'Rank ' + str(count+1);
 	line += '\n';
@@ -65,7 +85,7 @@ while row!=None:
 	f.write(line);
 	f.flush();
 		
-
+	print count;
 	count = count+1;
 
 for i in range(0,10):
