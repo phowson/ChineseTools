@@ -68,7 +68,7 @@ while row!=None:
 		continue;
 	
 
-	line = char;
+	line = '<h1>'+char+'</h1>';
 	line += '\t';
 	line += pinyin.get(char);
 	line += '<br/>';
