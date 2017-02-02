@@ -82,7 +82,7 @@ for i in range(skipForward,requiredDirectories):
 	with  open(directory +'/deck.tsv', 'w') as f:
 		for j in range(i*deckSize, i*deckSize + deckSize):
 			t = words[j];
-			print "download "  +t[4] 
+
 			mp3fls = str(j) + '.mp3';
 			mandarin = t[1];
 			definition = t[3];
@@ -90,12 +90,13 @@ for i in range(skipForward,requiredDirectories):
 
 			while True:
 				try:
+					print "download "  +t[4] 
 					urllib.urlretrieve (t[4], directory+'/'+mp3fls)
 					mdbgDef =  getDefinition(mandarin);
 					examples = getExamples(mandarin);
 					break;
 				except Exception as e:
-					print "Retrying with exception " ;
+					print "Retrying with exception " 
 					print e
 			tag="SECTION" + str(w/10);
 			f.write(mandarin +'\t' + pinyinX +'<br/>' +pinyin.get(mandarin)+ '<br/><p>' +mdbgDef +'</p>' +  definition + '<br/>' + examples  +"<br/>Score " + str(t[0]) +'\t'+tag+'\t\t\t'+mp3fls+'\t\n');
