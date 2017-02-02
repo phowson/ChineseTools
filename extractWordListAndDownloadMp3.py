@@ -83,16 +83,24 @@ for i in range(0,requiredDirectories):
 			t = words[j];
 			print "download "  +t[4] 
 			mp3fls = str(j) + '.mp3';
-			urllib.urlretrieve (t[4], directory+'/'+mp3fls)
-			mandarin = t[1];
-			definition = t[3];
-			pinyinX = t[2];
-			mdbgDef =  getDefinition(mandarin);
-			examples = getExamples(mandarin);
+			while True:
+				try:
+					urllib.urlretrieve (t[4], directory+'/'+mp3fls)
+				
+					mandarin = t[1];
+					definition = t[3];
+					pinyinX = t[2];
+					mdbgDef =  getDefinition(mandarin);
+					examples = getExamples(mandarin);
+					break;
+				except Exception as e:
+					print "Retrying with exception " + e;
 			tag="SECTION" + str(w/10);
 			f.write(mandarin +'\t' + pinyinX +'<br/>' +pinyin.get(mandarin)+ '<br/><p>' +mdbgDef +'</p>' +  definition + '<br/>' + examples  +"<br/>Score " + str(t[0]) +'\t'+tag+'\t\t\t'+mp3fls+'\t\n');
 			f.flush();
 			w=w+1;
+	with zipfile.ZipFile('deck' + str(i)+'.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+		zipdir(directory, zipf);
 
 
 

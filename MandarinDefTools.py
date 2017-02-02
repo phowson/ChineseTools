@@ -7,6 +7,16 @@ from mafan import simplify, tradify;
 import requests
 from bs4 import BeautifulSoup
 from HTMLParser import HTMLParser
+import zipfile
+import os;
+
+def zipdir(path, ziph):
+    # ziph is zipfile handle
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            ziph.write(os.path.join(root, file), file)
+
+
 h = HTMLParser();
 
 def getMostCommonChars(numberCharactersVocab): 
