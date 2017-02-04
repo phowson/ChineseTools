@@ -2,6 +2,10 @@
 import requests
 from MandarinDefTools import *;
 import sys;
+from gtts import gTTS;
+import urllib;
+
+
 
 reload(sys)  
 sys.setdefaultencoding('utf8')
@@ -10,18 +14,31 @@ sys.setdefaultencoding('utf8')
 response = requests.get('http://data.hskhsk.com/lists/HSK%20Official%20With%20Definitions%202012%20L4%20freqorder.txt');
 
 lines = response.content.split('\n');
+wordMap = getWordMap();
 
 
 outputFiles=[];
-for i in range(0,13):
-	f = open('HSK unit '+str(i) +' with examples.tsv', 'w');
-	outputFiles.append(f);
+outputFolderNames=[];
 
+dirPrefix='HSK4Deck';
+
+for i in range(0,13):
+	directory = dirPrefix + str(i);
+	if not os.path.exists(directory):
+		os.makedirs(directory)
+
+	f = open(directory+'/deck.tsv', 'w');
+	outputFiles.append(f);
+	outputFolderNames.append(directory);
 
 
 counter = 0;
 for row in lines:
 	cols = row.split('\t');
+	
+
+
+
 	if (len(cols)<4):
 		break;
 	col1=cols[0];
@@ -31,13 +48,32 @@ for row in lines:
 
 
 
-	char = col1;
+	char = col1.strip();
+
+	x = counter/50;
+
+	sDir = outputFolderNames[x];
+	knownWord = wordMap.get(char);
+	filename= str(counter) +'.mp3';
+	if (os.path.isfile(sDir+'/'+filename)):
+		os.remove(sDir+'/'+filename);
+
+
+	if knownWord is None:
+		tts = gTTS(text=char, lang='zh-cn')
+
+		tts.save(sDir+'/'+filename)		
+	else:
+		print "download "  +knownWord[3]
+		urllib.urlretrieve (knownWord[3], sDir+'/'+filename)
 
 
 
-	txt= '<h1>';
+
+
+	txt= '<font size=+3>';
 	txt+= char;
-	txt+= '</h1>\t';
+	txt+= '</font>\t';
 	txt+= reduceLen(clean(col4));
 	txt+= '<br/>';
 	txt+= reduceLen(clean(col5));
@@ -47,11 +83,19 @@ for row in lines:
 	txt+= getExamples(char);
 	txt+= '<br/>';
 	txt+= 'Rank ' + str(counter+1);
-	txt+= '\n';
 
-	ofls = outputFiles[counter/50];
+	tag = "SECTION" + str(counter / 10);
+
+	txt+= '\t'+tag+'\t\t\t'+filename+'\t\n'
+
+
+	ofls = outputFiles[x];
 	ofls.write(txt);
 	ofls.flush();
+
+
+
+
 
 	counter = counter+1;
 	print counter;
