@@ -15,10 +15,13 @@ sys.setdefaultencoding('utf8')
 
 
 numberCharactersVocab = 350;
-sentPages = 3;
 skip = 0;
 
-sDir = 'sentDeck' + str(numberCharactersVocab) +'/';
+sDir = 'yellowBridgeSentDeck' + str(numberCharactersVocab) +'/';
+
+if not os.path.exists(sDir):
+	os.makedirs(sDir)
+
 f = open(sDir +'deck.tsv', 'w');
 characters = list();
 
@@ -35,10 +38,11 @@ for c in characters:
 	if (c not in permissableInSentences):
 		break;
 
-	examplesList = list();
-	getExamplesWithList(c, examplesList,sentPages);
+	examplesList = getExamplesListFromYellowBridge(c);
+	print "got examples " + str(len(examplesList));
 
 	for pair in examplesList:
+
 		mandarin = pair[0];
 		definition = pair[1];
 
@@ -64,6 +68,8 @@ for c in characters:
 				ax=ax+1;
 			else:
 				skip=skip -1;
+		else:
+			print "ignored " + mandarin
 
 
 

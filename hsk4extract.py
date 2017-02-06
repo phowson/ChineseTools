@@ -105,3 +105,12 @@ for row in lines:
 
 for f in outputFiles:	
 	f.close();
+
+
+print "compressing"
+i=0;
+for d in outputFolderNames:
+	with zipfile.ZipFile('HSK4 Read deck' + str(i)+'.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+		zipdir(d, zipf);
+
+		i=i+1

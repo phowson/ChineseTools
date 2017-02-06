@@ -9,6 +9,11 @@ from bs4 import BeautifulSoup
 from HTMLParser import HTMLParser
 import zipfile
 import os;
+import time;
+import urllib2;
+import random;
+import cookielib;
+from fake_useragent import UserAgent
 
 def zipdir(path, ziph):
     # ziph is zipfile handle
@@ -110,6 +115,53 @@ def reduceLen(s):
 	return s[:200];
 
 
+def getTest(s):
+
+	req = urllib2.Request(s)
+	cj = cookielib.CookieJar()
+	password_manager = urllib2.HTTPPasswordMgrWithDefaultRealm()
+	auth_manager = urllib2.HTTPBasicAuthHandler(password_manager)
+	opener = urllib2.build_opener(auth_manager, urllib2.HTTPCookieProcessor(cj))
+	urllib2.install_opener(opener)
+	handler = urllib2.urlopen(req)
+	print handler.getcode()
+
+
+
+def getExamplesListFromYellowBridge(hanzi):
+	ua = UserAgent()
+	url = 'http://www.yellowbridge.com/chinese/sentsearch.php?word=' + hanzi;
+	headers = {'User-Agent': ua.random, 
+	'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 
+	'Accept-Language':'en-GB,en;q=0.5',
+	'Accept-Encoding':'gzip, deflate'
+
+	};
+	cookies = dict(cookies_are='working', PHPSESSID='t917g0rhepmssg800db8mgdt73')
+
+	print headers;
+	print "Sleep for a bit"
+	time.sleep(random.random()*10+3)
+	print "Slept, now spam yellowbridge " +url
+
+
+
+	response = requests.get(url, headers=headers, cookies=cookies);	
+
+	soup = BeautifulSoup(response.content, 'html.parser',)	
+	divs = soup.findAll('span',{'class','zh'});
+
+
+
+	examples = [];
+	for div in divs:
+		sent = div.get_text("").replace('⑤','').replace('⑩','').replace('{','').replace('}','').replace('⑸','').replace('①','').replace('⑴','').replace('⑴','').replace('⑷','');
+		definition = div.find_next("br").get_text("");
+		
+		examples.append((sent, definition));
+
+	return examples;
+
 
 
 
@@ -143,8 +195,14 @@ def getExamplesWithList(char,lst,maxPages):
 
 def getExamples(char):
 	txt='';
+	lst0 = getExamplesListFromYellowBridge(char);
 	lst = list();
 	getExamplesWithList(char,lst,2);
+
+
+	for t in lst0:
+		txt+=t[0] +' : ' +t[1] +'<br/>';
+
 	for t in lst:
 		txt+=t[0] +' : ' +t[1] +'<br/>';
 
