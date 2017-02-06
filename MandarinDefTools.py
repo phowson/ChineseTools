@@ -105,6 +105,41 @@ def getMostCommonCharsWithList(numberCharactersVocab, characters):
 	permissableInSentences.add(u'，');
 	permissableInSentences.add(u' ');
 	permissableInSentences.add(u'您');
+	permissableInSentences.add(u'谢');
+	permissableInSentences.add(u'啊');
+	permissableInSentences.add(u'她');
+	permissableInSentences.add(u'他');
+	permissableInSentences.add(u'它');
+	permissableInSentences.add(u'那');
+	permissableInSentences.add(u'这');
+	permissableInSentences.add(u'哪');
+	permissableInSentences.add(u'人');
+	permissableInSentences.add(u'不');
+	permissableInSentences.add(u'的');
+	permissableInSentences.add(u'子');
+	permissableInSentences.add(u'得');
+	permissableInSentences.add(u'地');
+	permissableInSentences.add(u'一');
+	permissableInSentences.add(u'二');
+	permissableInSentences.add(u'三');
+	permissableInSentences.add(u'四');
+	permissableInSentences.add(u'五');
+	permissableInSentences.add(u'六');
+	permissableInSentences.add(u'七');
+	permissableInSentences.add(u'八');
+	permissableInSentences.add(u'九');
+	permissableInSentences.add(u'两');
+	permissableInSentences.add(u'个');
+	permissableInSentences.add(u'十');
+	permissableInSentences.add(u'零');
+
+	permissableInSentences.add(u'了');
+	permissableInSentences.add(u'？');
+	permissableInSentences.add(u'“');
+	permissableInSentences.add(u'”');
+	permissableInSentences.add(u'!');
+	permissableInSentences.add(u'.');
+	permissableInSentences.add(u',');
 	return permissableInSentences;
 
 
@@ -113,19 +148,6 @@ def clean(s):
 
 def reduceLen(s):
 	return s[:200];
-
-
-def getTest(s):
-
-	req = urllib2.Request(s)
-	cj = cookielib.CookieJar()
-	password_manager = urllib2.HTTPPasswordMgrWithDefaultRealm()
-	auth_manager = urllib2.HTTPBasicAuthHandler(password_manager)
-	opener = urllib2.build_opener(auth_manager, urllib2.HTTPCookieProcessor(cj))
-	urllib2.install_opener(opener)
-	handler = urllib2.urlopen(req)
-	print handler.getcode()
-
 
 
 def getExamplesListFromYellowBridge(hanzi):
@@ -137,9 +159,14 @@ def getExamplesListFromYellowBridge(hanzi):
 	'Accept-Encoding':'gzip, deflate'
 
 	};
-	cookies = dict(cookies_are='working', PHPSESSID='t917g0rhepmssg800db8mgdt73')
 
-	print headers;
+	sessionId = str(round(random.random()*10000000));
+	cookies = dict(
+	cookies_are='working', 
+	PHPSESSID=sessionId,
+	_ga='GA1.2.108927118.1479826512',
+	_gat='1');
+
 	print "Sleep for a bit"
 	time.sleep(random.random()*10+3)
 	print "Slept, now spam yellowbridge " +url
@@ -155,10 +182,10 @@ def getExamplesListFromYellowBridge(hanzi):
 
 	examples = [];
 	for div in divs:
-		sent = div.get_text("").replace('⑤','').replace('⑩','').replace('{','').replace('}','').replace('⑸','').replace('①','').replace('⑴','').replace('⑴','').replace('⑷','');
+		sent = div.get_text("").replace('④','').replace('⑤','').replace('⑩','').replace('{','').replace('}','').replace('⑸','').replace('①','').replace('⑴','').replace('⑴','').replace('⑷','').replace('⑵','').replace('③','').replace('。','').replace('②','').replace('⑶','').strip();
 		definition = div.find_next("br").get_text("");
 		
-		examples.append((sent, definition));
+		examples.append((simplify(clean(h.unescape(sent))), definition));
 
 	return examples;
 

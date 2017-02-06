@@ -14,7 +14,7 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
-numberCharactersVocab = 350;
+numberCharactersVocab = 500;
 skip = 0;
 
 sDir = 'yellowBridgeSentDeck' + str(numberCharactersVocab) +'/';
@@ -30,6 +30,9 @@ permissableInSentences = getMostCommonCharsWithList(numberCharactersVocab, chara
 
 
 print "Retrieved " + str(len(characters)) +" characters";
+
+print "Allowed : " 
+print permissableInSentences;
 
 alreadySeen = set();
 ax = 0;
@@ -68,9 +71,6 @@ for c in characters:
 				ax=ax+1;
 			else:
 				skip=skip -1;
-		else:
-			print "ignored " + mandarin
-
 
 
 
