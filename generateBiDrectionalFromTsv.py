@@ -3,7 +3,7 @@ import requests
 import sys;
 from sets import Set
 from MandarinDefTools import *;
-import pinyin;
+import pinyin as py;
 from gtts import gTTS;
 import os;
 import csv;
@@ -15,7 +15,7 @@ sDir = sys.argv[2] +'/';
 sDir1 = sDir +'/MandEng/';
 sDir2 = sDir +'/EngMand/';
 
-
+includeMP3 = False
 
 outputFolderNames=[];
 
@@ -34,20 +34,29 @@ with open(sys.argv[1], 'rb') as csvfile:
 
 	for row in creader:
 		mandarin = row[0];
-		pinyin = row[1];
-		definition = row[2];
+
+		if len(row)>=3:
+			pinyin = row[1];
+			definition = row[2];
+		else:
+			pinyin = py.get(mandarin)
+			definition = getDefinition(mandarin);
 		tag = "SECTION" + str(ax/10);
 
-		tts = gTTS(text=mandarin, lang='zh-cn')
-		filename = 'sentaudio' + str(ax) +'.mp3';
-		if (os.path.isfile(sDir1+filename)):
-			os.remove(sDir1+filename);
 
-		if (os.path.isfile(sDir2+filename)):
-			os.remove(sDir2+filename);
+		if includeMP3:
+			tts = gTTS(text=mandarin, lang='zh-cn')
+			filename = 'sentaudio' + str(ax) +'.mp3';
+			if (os.path.isfile(sDir1+filename)):
+				os.remove(sDir1+filename);
 
-		tts.save(sDir1+filename);
-		tts.save(sDir2+filename);
+			if (os.path.isfile(sDir2+filename)):
+				os.remove(sDir2+filename);
+
+			tts.save(sDir1+filename);
+			tts.save(sDir2+filename);
+		else:
+			filename = '';
 
 		f.write(mandarin +'\t' + pinyin+ '<br/><p>' + definition +'</p>\t'+tag+'\t\t\t'+filename+'\t\n');
 		f.flush();
