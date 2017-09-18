@@ -12,10 +12,10 @@ sys.setdefaultencoding('utf8')
 
 
 
-DIVISOR=50;
-FOLDERS=13
+DIVISOR=300;
+FOLDERS=2
 includeExamples=False;
-
+inlcudeMp3 = False;
 
 response = requests.get('http://data.hskhsk.com/lists/HSK%20Official%20With%20Definitions%202012%20L4%20freqorder.txt');
 
@@ -27,12 +27,12 @@ outputFilesRev=[];
 outputFolderNames=[];
 outputFolderNamesRev=[];
 
-dirPrefix='HSK4Deck2';
-dirPrefix2='HSK4Deck2Rev';
+dirPrefix='HSK4DeckZhEng';
+dirPrefix2='HSK4DeckEngZh';
 
 for i in range(0,FOLDERS):
 	directory = dirPrefix + str(i);
-	directory2 = dirPrefix + 'rev' + str(i);
+	directory2 = dirPrefix2 + str(i);
 	
 
 	if not os.path.exists(directory):
@@ -74,13 +74,13 @@ for row in lines:
 	sDir = outputFolderNames[x];
 	sDir2 = outputFolderNamesRev[x];
 	#knownWord = wordMap.get(char);
-	filename= str(counter) +'.mp3';
-	if (os.path.isfile(sDir+'/'+filename)):
-		os.remove(sDir+'/'+filename);
-
-	tts = gTTS(text=char, lang='zh-cn')
-	tts.save(sDir+'/'+filename)		
-	tts.save(sDir2+'/'+filename)		
+	if inlcudeMp3:
+		filename= str(counter) +'.mp3';
+		if (os.path.isfile(sDir+'/'+filename)):
+			os.remove(sDir+'/'+filename);
+		tts = gTTS(text=char, lang='zh-cn')
+		tts.save(sDir+'/'+filename)		
+		tts.save(sDir2+'/'+filename)		
 
 
 	if includeExamples:
@@ -102,7 +102,10 @@ for row in lines:
 	txt+= examples
 	txt+= '<br/>';
 	txt+= 'Rank ' + str(counter+1);
-	txt+= '\t'+tag+'\t\t\t'+filename+'\t\n'
+	if inlcudeMp3:
+		txt+= '\t'+tag+'\t\t\t'+filename+'\t\n'
+	else:
+		txt+= '\n';
 
 
 	ofls = outputFiles[x];
@@ -112,18 +115,20 @@ for row in lines:
 
 
 	txt2= getDefinition(char);	
+	txt2+= '<br/>';
+	txt2+= reduceLen(clean(col5));
 	txt2+= '\t';
 	txt2+= char;
 	txt2+= '<br/>';
 	txt2+= reduceLen(clean(col4));
 	txt2+= '<br/>';
-	txt2+= reduceLen(clean(col5));
-	txt2+= '<br/>';
 	txt2+= examples;
 	txt2+= '<br/>';
 	txt2+= 'Rank ' + str(counter+1);
-	txt2+= '\t'+tag+'\t\t\t'+filename+'\t\n'
-
+	if inlcudeMp3:
+		txt2+= '\t'+tag+'\t\t\t'+filename+'\t\n'
+	else:
+		txt2+= '\n';
 
 	ofls2 = outputFilesRev[x];
 	ofls2.write(txt2);
@@ -145,17 +150,20 @@ for f in outputFilesRev:
 	f.close();
 
 
-print "compressing"
-i=0;
 
-for d in outputFolderNamesRev:
-	with zipfile.ZipFile('HSK4 EngZh deck' + str(i)+'.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
-		zipdir(d, zipf);
+if inlcudeMp3:
 
-		i=i+1
+	print "compressing"
+	i=0;
 
-for d in outputFolderNames:
-	with zipfile.ZipFile('HSK4 ZhEng deck' + str(i)+'.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
-		zipdir(d, zipf);
+	for d in outputFolderNamesRev:
+		with zipfile.ZipFile('HSK4 EngZh deck' + str(i)+'.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+			zipdir(d, zipf);
 
-		i=i+1
+			i=i+1
+
+	for d in outputFolderNames:
+		with zipfile.ZipFile('HSK4 ZhEng deck' + str(i)+'.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+			zipdir(d, zipf);
+
+			i=i+1
