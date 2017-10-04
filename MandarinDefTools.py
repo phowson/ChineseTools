@@ -239,7 +239,18 @@ def getExamples(char):
 
 
 def getDefinition(char):
-	response = requests.get('https://www.mdbg.net/chindict/chindict.php?wdqb='+char);	
+
+	success = False;
+
+	while not success:
+
+		try:
+			response = requests.get('https://www.mdbg.net/chindict/chindict.php?wdqb='+char);	
+			success=True
+		except Exception:
+			success=False
+			print "Retry definition service"
+
 	soup = BeautifulSoup(response.content, 'html.parser',)	
 
 	tables = soup.findAll('table',{'class','wordresults'});
