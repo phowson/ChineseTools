@@ -271,7 +271,7 @@ def getDefinition(char):
 			dv = row.find_next("div",{'class','defs'});
 
 			x = h.unescape(dv.get_text(" ",strip=True));
-			if ("surname" not in x and "Surname" not in x and "variant of" not in x and "Variant of" not in x):				
+			if ("surname" not in x and "Surname" not in x and "variant of" not in x and "Variant of" not in x and "county in" not in x):				
 				if (first==None):
 					first = x;
 				if ('HSK' in x and HSK == None):
