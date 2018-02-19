@@ -10,7 +10,7 @@ import csv;
 
 reload(sys)  
 sys.setdefaultencoding('utf8')
-
+lookUpDef = False;
 
 
 
@@ -23,6 +23,7 @@ with open('frequencyRanking.csv', 'rb') as csvfile:
 		cols = row.split(',');
 		frequencies[cols[0]] = float(cols[1]);
 
+seen = set();
 
 with open(sys.argv[2], 'w') as f:
 	ax=0;
@@ -39,22 +40,26 @@ with open(sys.argv[2], 'w') as f:
 
 			else:
 				mandarin = unicode(row);
-				definition= getDefinition(mandarin);
+				definition = None;
+				if lookUpDef:
+					definition= getDefinition(mandarin);
 
 				rank =0;
 				den = len(mandarin);
 
-				print(mandarin);
+				
 				for i in range(len(mandarin)):
 					c = mandarin[i];
-					print(c);
 
 					if frequencies.has_key(c):
 						rank =  rank + frequencies[c];
 
 				rank = rank / float(den);
-				print(rank);
-				out.append(( rank, mandarin, pinyin.get(mandarin),definition)  );
+				
+
+				if mandarin not in seen:
+						out.append(( rank, mandarin, pinyin.get(mandarin),definition)  );
+						seen.add(mandarin);
 
 
 				ax=ax+1;
@@ -62,6 +67,10 @@ with open(sys.argv[2], 'w') as f:
 
 	out.sort(reverse=True);
 
-	for mandarin, pys, definition in out:
-		f.write(mandarin +'\t' + pys+ '\t' + definition +'\n');
+	for rank, mandarin, pys, definition in out:
+		print(rank);
+		if definition is not None:
+			f.write(mandarin +'\t' + pys+ '\t' + definition +'\n');
+		else:
+			f.write(mandarin + '\n');
 	
