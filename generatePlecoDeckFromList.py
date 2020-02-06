@@ -1,18 +1,15 @@
 # coding=utf-8
 import requests
 import sys;
-from sets import Set
 from MandarinDefTools import *;
 import pinyin;
 from gtts import gTTS;
 import os;
 import csv;
 
-reload(sys)  
-sys.setdefaultencoding('utf8')
-f = open(sys.argv[2], 'w');
+f = open(sys.argv[2], 'w',encoding='utf-8');
 ax=0;
-with open(sys.argv[1], 'rb') as csvfile:
+with open(sys.argv[1], 'r',encoding='utf-8') as csvfile:
 	creader = csvfile.readlines();
 
 	for row in creader:

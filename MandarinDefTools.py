@@ -6,13 +6,13 @@ import mafan;
 from mafan import simplify, tradify;
 import requests
 from bs4 import BeautifulSoup
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 import zipfile
 import os;
 import time;
-import urllib2;
+from urllib.request import urlopen
 import random;
-import cookielib;
+import http.cookiejar
 from fake_useragent import UserAgent
 
 def zipdir(path, ziph):
@@ -29,7 +29,7 @@ def getWordMap():
 	words = {};
 
 	for i in range(1,6):
-		print i;
+		print(i);
 		with open('WordLists\\' + str(i) +'.html', 'r') as f:
 			html_doc= f.read();
 			soup = BeautifulSoup(html_doc, 'html.parser',)
@@ -53,7 +53,7 @@ def getWordMap():
 				words[hanzi] = ( hanzi, pinYin, translation, mp3Path);
 
 				row = row.find_next("tr");
-			print len(words);
+			print(len(words));
 	return words;
 
 
@@ -167,9 +167,9 @@ def getExamplesListFromYellowBridge(hanzi):
 	_ga='GA1.2.108927118.1479826512',
 	_gat='1');
 
-	print "Sleep for a bit"
+	print("Sleep for a bit")
 	time.sleep(random.random()*10+3)
-	print "Slept, now spam yellowbridge " +url
+	print("Slept, now spam yellowbridge " +url)
 
 
 
@@ -242,52 +242,70 @@ def getDefinition(char):
 
 	success = False;
 
+
+
 	while not success:
 
 		try:
-			response = requests.get('https://www.mdbg.net/chindict/chindict.php?wdqb='+char);	
+			cookies = dict(
+			cookies_are='working', 
+			_ga='GA1.2.108927118.1479826512',
+			_gat='1');
+			ua = UserAgent()
+			headers = {
+			'User-Agent': ua.random, 
+			'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8', 
+			'Accept-Language':'en-GB,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
+			'Accept-Encoding':'gzip, deflate, br',
+			'Connection':	'keep-alive'
+
+			};
+
+			response = requests.get(
+				'https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb='+char, 
+				headers=headers,  cookies=cookies);	
 			success=True
 		except Exception:
 			success=False
-			print "Retry definition service"
+			print("Retry definition service")
+
 
 	soup = BeautifulSoup(response.content, 'html.parser',)	
-
 	tables = soup.findAll('table',{'class','wordresults'});
-	
-	row1= tables[0].find_next("tr");
-	row= row1.find_next("tr");
+	if len(tables)>0:
+		row1= tables[0].find_next("tr");
+		row= row1.find_next("tr");
 
 
-	col1 = row.find_next('td');
+		col1 = row.find_next('td');
 
-	first = None;
-	HSK = None;
-	while col1!=None:
+		first = None;
+		HSK = None;
+		while col1!=None:
 
-		utf1 = col1.get_text();
-		if (char in utf1):
+			utf1 = col1.get_text();
+			if (char in utf1):
 
-			dv = row.find_next("div",{'class','defs'});
+				dv = row.find_next("div",{'class','defs'});
 
-			x = h.unescape(dv.get_text(" ",strip=True));
-			if ("surname" not in x and "Surname" not in x and "variant of" not in x and "Variant of" not in x and "county in" not in x):				
-				if (first==None):
-					first = x;
-				if ('HSK' in x and HSK == None):
-					HSK = x;
+				x = h.unescape(dv.get_text(" ",strip=True));
+				if ("surname" not in x and "Surname" not in x and "variant of" not in x and "Variant of" not in x and "county in" not in x):				
+					if (first==None):
+						first = x;
+					if ('HSK' in x and HSK == None):
+						HSK = x;
 
-	
+		
 
 
-		row = row.find_next('tr');		
-		if (row==None):
-			break;
-		col1 = row.find_next('td');		
+			row = row.find_next('tr');		
+			if (row==None):
+				break;
+			col1 = row.find_next('td');		
 
-	if (HSK!=None):
-		return HSK;
-	if (first!=None):
-		return first;
+		if (HSK!=None):
+			return HSK;
+		if (first!=None):
+			return first;
 
 	return "None on MDBG";

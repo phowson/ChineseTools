@@ -33,6 +33,9 @@ with open(sys.argv[1], 'rb') as csvfile:
 	creader = csv.reader(csvfile, delimiter='\t')
 
 	for row in creader:
+		if row[0].startswith('//'):
+			continue;
+
 		mandarin = row[0];
 
 		if len(row)>=3:
